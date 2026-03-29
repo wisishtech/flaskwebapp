@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CSC312 Flask App | Sign Up</title>
+
+  <!-- Bootstrap 5 CSS -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+
+  <!-- Bootstrap Icons -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    rel="stylesheet"
+  />
+
+  <style>
+    body {
+      background-color: #f0f4f8;
+      font-family: 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .navbar-brand {
+      font-weight: 700;
+      font-size: 1.3rem;
+    }
+
+    /* Signup card container */
+    .signup-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 16px;
+    }
+
+    .signup-card {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      padding: 44px 40px;
+      width: 100%;
+      max-width: 460px;
+    }
+
+    .signup-card h2 {
+      color: #1a3a5c;
+      font-weight: 700;
+      font-size: 1.8rem;
+      margin-bottom: 6px;
+    }
+
+    .signup-card .subtitle {
+      color: #6c757d;
+      font-size: 0.95rem;
+      margin-bottom: 28px;
+    }
+
+    /* Icon header */
+    .icon-circle {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, #1a3a5c, #2e5496);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+    }
+
+    .icon-circle i {
+      color: #ffffff;
+      font-size: 1.8rem;
+    }
+
+    /* Form label style */
+    .form-label {
+      font-weight: 600;
+      color: #1a3a5c;
+      font-size: 0.9rem;
+    }
+
+    /* Input focus style */
+    .form-control:focus {
+      border-color: #2e5496;
+      box-shadow: 0 0 0 0.2rem rgba(46, 84, 150, 0.2);
+    }
+
+    /* Submit button */
+    .btn-primary-custom {
+      background: linear-gradient(135deg, #1a3a5c, #2e5496);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      width: 100%;
+      transition: opacity 0.2s ease;
+    }
+
+    .btn-primary-custom:hover {
+      opacity: 0.9;
+      color: #ffffff;
+    }
+
+    /* Password strength bar */
+    #strength-bar {
+      height: 5px;
+      border-radius: 4px;
+      transition: width 0.3s ease, background-color 0.3s ease;
+      width: 0%;
+    }
+
+    /* Footer */
+    footer {
+      background-color: #1a3a5c;
+      color: #a0b8d8;
+      padding: 20px 0;
+      font-size: 0.88rem;
+      text-align: center;
+    }
+
+    /* Password toggle button */
+    .toggle-pw {
+      cursor: pointer;
+      color: #6c757d;
+    }
+
+    .toggle-pw:hover {
+      color: #1a3a5c;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ===================== NAVBAR ===================== -->
+  <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #1a3a5c;">
+    <div class="container">
+      <a class="navbar-brand" href="{{ url_for('index') }}">
+        <i class="bi bi-layers-fill me-2"></i>CSC312 App
+      </a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarNav"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('index') }}">
+              <i class="bi bi-house-fill me-1"></i>Home
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="{{ url_for('signup') }}">
+              <i class="bi bi-person-plus-fill me-1"></i>Sign Up
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===================== FLASH MESSAGES ===================== -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <div class="container mt-3">
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            <i class="bi bi-info-circle-fill me-2"></i>{{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- ===================== SIGNUP FORM ===================== -->
+  <div class="signup-wrapper">
+    <div class="signup-card">
+
+      <!-- Icon header -->
+      <div class="icon-circle">
+        <i class="bi bi-person-plus-fill"></i>
+      </div>
+
+      <h2 class="text-center">Create Account</h2>
+      <p class="subtitle text-center">
+        Fill in the details below to register. Your password will be
+        securely hashed before storage (Viega &amp; Messier, 2003).
+      </p>
+
+      <!--
+        Form submits via POST to the /signup route.
+        Flask's request.form is used in app.py to retrieve field values.
+        Reference: Grinberg (2018) - Flask Web Development.
+      -->
+      <form method="POST" action="{{ url_for('signup') }}" novalidate>
+
+        <!-- Username Field -->
+        <div class="mb-3">
+          <label for="username" class="form-label">
+            <i class="bi bi-person-fill me-1"></i>Username
+          </label>
+          <input
+            type="text"
+            class="form-control"
+            id="username"
+            name="username"
+            placeholder="Enter your username"
+            required
+            autocomplete="off"
+            minlength="3"
+            maxlength="50"
+          />
+          <div class="form-text text-muted">3 to 50 characters. No spaces.</div>
+        </div>
+
+        <!-- Password Field -->
+        <div class="mb-2">
+          <label for="password" class="form-label">
+            <i class="bi bi-lock-fill me-1"></i>Password
+          </label>
+          <div class="input-group">
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              name="password"
+              placeholder="Enter a strong password"
+              required
+              minlength="6"
+              oninput="updateStrength(this.value)"
+            />
+            <span class="input-group-text toggle-pw" onclick="togglePassword()">
+              <i class="bi bi-eye-fill" id="eye-icon"></i>
+            </span>
+          </div>
+          <div class="form-text text-muted">Minimum 6 characters.</div>
+        </div>
+
+        <!-- Password Strength Bar -->
+        <div class="mb-3">
+          <div class="bg-light rounded" style="height: 5px;">
+            <div id="strength-bar"></div>
+          </div>
+          <small id="strength-label" class="text-muted"></small>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="btn btn-primary-custom mt-2">
+          <i class="bi bi-check-circle-fill me-2"></i>Create Account
+        </button>
+
+        <!-- Link back to home -->
+        <p class="text-center mt-4 mb-0" style="font-size: 0.9rem; color: #6c757d;">
+          Already have an account?
+          <a href="{{ url_for('index') }}" style="color: #2e5496; font-weight: 600;">
+            Go Home
+          </a>
+        </p>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer>
+    <div class="container">
+      <p class="mb-0">
+        <i class="bi bi-mortarboard-fill me-2"></i>
+        CSC312 Web Application Development &nbsp;|&nbsp; MIVA Open University &nbsp;|&nbsp; 2026
+      </p>
+    </div>
+  </footer>
+
+  <!-- Bootstrap 5 JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    /**
+     * togglePassword()
+     * Shows or hides the password input text and toggles the eye icon.
+     */
+    function togglePassword() {
+      const pwInput = document.getElementById('password');
+      const eyeIcon = document.getElementById('eye-icon');
+      if (pwInput.type === 'password') {
+        pwInput.type = 'text';
+        eyeIcon.classList.replace('bi-eye-fill', 'bi-eye-slash-fill');
+      } else {
+        pwInput.type = 'password';
+        eyeIcon.classList.replace('bi-eye-slash-fill', 'bi-eye-fill');
+      }
+    }
+
+    /**
+     * updateStrength(password)
+     * Provides visual feedback on password strength as the user types.
+     * Strength levels: Weak (red), Moderate (orange), Strong (green).
+     */
+    function updateStrength(password) {
+      const bar   = document.getElementById('strength-bar');
+      const label = document.getElementById('strength-label');
+
+      let strength = 0;
+      if (password.length >= 6)  strength++;
+      if (password.length >= 10) strength++;
+      if (/[A-Z]/.test(password)) strength++;
+      if (/[0-9]/.test(password)) strength++;
+      if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+      const levels = [
+        { width: '0%',   color: '',        text: '' },
+        { width: '25%',  color: '#dc3545', text: 'Weak' },
+        { width: '50%',  color: '#fd7e14', text: 'Fair' },
+        { width: '75%',  color: '#ffc107', text: 'Good' },
+        { width: '100%', color: '#198754', text: 'Strong' },
+      ];
+
+      const level = Math.min(strength, 4);
+      bar.style.width           = levels[level].width;
+      bar.style.backgroundColor = levels[level].color;
+      label.textContent         = levels[level].text;
+      label.style.color         = levels[level].color;
+    }
+  </script>
+
+</body>
+</html>
