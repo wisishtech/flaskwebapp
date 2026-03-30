@@ -1,0 +1,10 @@
+# requirements.txt
+# CSC312 - Web Application Development
+# MIVA Open University, 2024
+#
+# Install all dependencies with:
+#   pip install -r requirements.txt
+
+Flask==3.0.3
+mysql-connector-python==8.4.0
+Werkzeug==3.0.3
